@@ -156,7 +156,7 @@ exports.input = function(options) {
     // Listen for swipe right to finish
     if (Bangle.prependListener) {
       Bangle.prependListener('swipe', onSwipe);
-      Bangle.prependListener('swipe', onTouch);
+      Bangle.prependListener('touch', onTouch);
     } 
     else {
       Bangle.on('swipe', onSwipe);
