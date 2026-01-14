@@ -150,6 +150,7 @@ exports.input = function(options) {
 
   return new Promise(resolve => {
     g.clearRect(Bangle.appRect);
+    g.clear();
     resolver = resolve;
     drawUI();
 
