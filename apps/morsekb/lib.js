@@ -2,7 +2,7 @@
 // Touch-based 4-button Morse input
 
 exports.input = function(options) {
-  g.clear();
+  //var Layout = require("Layout");
 
   // -------------------- MORSE TABLE --------------------
   const MORSE = {
@@ -119,6 +119,7 @@ exports.input = function(options) {
     drawUI();
   }
 
+  // -------------------- SWIPE --------------------
   function onSwipe(lr, ud) {
     if (lr === 1) {        // DONE
       commitCharacter();
@@ -133,7 +134,7 @@ exports.input = function(options) {
     }
   }
 
-  // -------------------- TOUCH DISPATCH --------------------
+  // -------------------- TOUCH --------------------
   function onTouch(_, xy) {
     let x = xy.x, y = xy.y;
     for (let k in buttons) {
@@ -148,20 +149,55 @@ exports.input = function(options) {
     }
   };
 
-  return new Promise(resolve => {
-    g.clearRect(Bangle.appRect);
-    g.clear();
+  return new Promise((resolve, reject) => {
     resolver = resolve;
 
-    // Listen for swipe right to finish
-    if (Bangle.prependListener) {
-      Bangle.prependListener('swipe', onSwipe);
-      Bangle.prependListener('touch', onTouch);
-    } 
-    else {
-      Bangle.on('swipe', onSwipe);
-      Bangle.on("touch", onTouch);
-    }
-
+    Bangle.setUI({mode:"custom", 
+      drag:(lr, ud)=>{
+      if (lr === 1) {        // DONE
+        commitCharacter();
+        cleanup();
+        resolver(outputText);
+      } else if (lr === -1) { // CANCEL
+        cleanup();
+        resolver(undefined);
+      }
+      if (ud === 1) {
+        openSpecialMenu();
+      }
+    },touch:(_, xy)=>{
+      let x = xy.x, y = xy.y;
+      for (let k in buttons) {
+        let b = buttons[k];
+        if (x>=b.x && x<=b.x+b.w && y>=b.y && y<=b.y+b.h) {
+          if (k==="dot") addSignal(".");
+          else if (k==="dash") addSignal("-");
+          else if (k==="ret") pausePressed();
+          else if (k==="del") deletePressed();
+          return;
+        }
+      }
+    },back:()=>{
+      clearInterval(flashInterval);
+      Bangle.setUI();
+      Bangle.prependListener&&Bangle.removeListener('swipe', catchSwipe); // Remove swipe lister if it was added with `Bangle.prependListener()` (fw2v19 and up).
+      g.clearRect(Bangle.appRect);
+      resolve(text);
+    }});
+    g.clearRect(Bangle.appRect);
+    drawUI();
+    let catchSwipe = ()=>{E.stopEventPropagation&&E.stopEventPropagation();};
+    Bangle.prependListener&&Bangle.prependListener('swipe', catchSwipe); // Intercept swipes on fw2v19 and later. Should not break on older firmwares.
   });
-};
+
+    // Listen for swipe right to finish
+    //if (Bangle.prependListener) {
+    //  Bangle.prependListener('swipe', onSwipe);
+    //  Bangle.prependListener('touch', onTouch);
+    //} 
+    //else {
+    //  Bangle.on('swipe', onSwipe);
+    //  Bangle.on("touch", onTouch);
+    //}
+
+}
