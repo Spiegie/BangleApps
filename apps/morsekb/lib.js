@@ -152,7 +152,6 @@ exports.input = function(options) {
     g.clearRect(Bangle.appRect);
     g.clear();
     resolver = resolve;
-    drawUI();
 
     // Listen for swipe right to finish
     if (Bangle.prependListener) {
