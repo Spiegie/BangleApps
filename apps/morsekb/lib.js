@@ -109,8 +109,6 @@ exports.input = function(options) {
 
   function cleanup() {
     Bangle.setUI();
-    Bangle.removeListener("swipe", onSwipe);
-    Bangle.removeListener("touch", onTouch);
     g.clearRect(Bangle.appRect);
   }
 
@@ -152,7 +150,9 @@ exports.input = function(options) {
   return new Promise((resolve, reject) => {
     resolver = resolve;
 
-    Bangle.setUI({mode:"custom", 
+    Bangle.setUI({
+      mode:"custom", 
+      
       drag:(lr, ud)=>{
       if (lr === 1) {        // DONE
         commitCharacter();
@@ -165,7 +165,9 @@ exports.input = function(options) {
       if (ud === 1) {
         openSpecialMenu();
       }
-    },touch:(_, xy)=>{
+    },
+    
+    touch:(_, xy)=>{
       let x = xy.x, y = xy.y;
       for (let k in buttons) {
         let b = buttons[k];
@@ -177,17 +179,17 @@ exports.input = function(options) {
           return;
         }
       }
-    },back:()=>{
-      clearInterval(flashInterval);
-      Bangle.setUI();
-      Bangle.prependListener&&Bangle.removeListener('swipe', catchSwipe); // Remove swipe lister if it was added with `Bangle.prependListener()` (fw2v19 and up).
-      g.clearRect(Bangle.appRect);
-      resolve(text);
+    },
+
+
+    back : () => {
+      cleanup();
+      resolver(undefined); // cancel
     }});
     g.clearRect(Bangle.appRect);
     drawUI();
-    let catchSwipe = ()=>{E.stopEventPropagation&&E.stopEventPropagation();};
-    Bangle.prependListener&&Bangle.prependListener('swipe', catchSwipe); // Intercept swipes on fw2v19 and later. Should not break on older firmwares.
+    //let catchSwipe = ()=>{E.stopEventPropagation&&E.stopEventPropagation();};
+    //Bangle.prependListener&&Bangle.prependListener('swipe', catchSwipe); // Intercept swipes on fw2v19 and later. Should not break on older firmwares.
   });
 
     // Listen for swipe right to finish
