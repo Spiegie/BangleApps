@@ -108,8 +108,8 @@ exports.input = function(options) {
   }
 
   function cleanup() {
-    Bangle.removeListener("swipe", onSwipe);
     Bangle.setUI();
+    Bangle.removeListener("swipe", onSwipe);
     g.clearRect(Bangle.appRect);
   }
 
@@ -164,17 +164,19 @@ exports.input = function(options) {
             return;
           }
         }
-      },
-      back : () => {
-        cleanup();
-        resolver(undefined); // cancel
+      },back:()=>{
+        clearInterval(flashInterval);
+        Bangle.setUI();
+        Bangle.prependListener&&Bangle.removeListener('swipe', catchSwipe); // Remove swipe lister if it was added with `Bangle.prependListener()` (fw2v19 and up).
+        g.clearRect(Bangle.appRect);
+        resolve(text);
       }
     });
     Bangle.on("swipe", onSwipe);
     g.clearRect(Bangle.appRect);
     drawUI();
-    //let catchSwipe = ()=>{E.stopEventPropagation&&E.stopEventPropagation();};
-    //Bangle.prependListener&&Bangle.prependListener('swipe', catchSwipe); // Intercept swipes on fw2v19 and later. Should not break on older firmwares.
+    let catchSwipe = ()=>{E.stopEventPropagation&&E.stopEventPropagation();};
+    Bangle.prependListener&&Bangle.prependListener('swipe', catchSwipe); // Intercept swipes on fw2v19 and later. Should not break on older firmwares.
   });
 
     // Listen for swipe right to finish
