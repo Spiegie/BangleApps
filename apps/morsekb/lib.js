@@ -152,6 +152,7 @@ exports.input = function(options) {
     resolver = resolve;
 
     Bangle.setUI({
+      mode:"custom", 
       touch:(_, xy)=>{
         let x = xy.x, y = xy.y;
         for (let k in buttons) {
@@ -165,14 +166,18 @@ exports.input = function(options) {
           }
         }
       },back:()=>{
-        clearInterval(flashInterval);
         Bangle.setUI();
         Bangle.prependListener&&Bangle.removeListener('swipe', catchSwipe); // Remove swipe lister if it was added with `Bangle.prependListener()` (fw2v19 and up).
         g.clearRect(Bangle.appRect);
-        resolve(text);
       }
     });
-    Bangle.on("swipe", onSwipe);
+    // Listen for swipe right to finish
+    if (Bangle.prependListener) {
+      Bangle.prependListener('swipe', onSwipe);
+    } 
+    else {
+      Bangle.on('swipe', onSwipe);
+    }
     g.clearRect(Bangle.appRect);
     drawUI();
     let catchSwipe = ()=>{E.stopEventPropagation&&E.stopEventPropagation();};
