@@ -109,7 +109,7 @@ exports.input = function(options) {
 
   function cleanup() {
     Bangle.setUI();
-    Bangle.removeListener("swipe", onSwipe);
+    //Bangle.removeListener("swipe", onSwipe);
     g.clearRect(Bangle.appRect);
   }
 
@@ -165,19 +165,33 @@ exports.input = function(options) {
             return;
           }
         }
-      },back:()=>{
+      },
+      drag: (e)=>{
+        if (e.x > 30) {        // DONE
+          commitCharacter();
+          cleanup();
+          resolver(outputText);
+        } else if (e.x < -30) { // CANCEL
+          cleanup();
+          resolver(undefined);
+        }
+        if (e.y > 1) {
+          openSpecialMenu();
+        }
+      },
+      back:()=>{
         Bangle.setUI();
         Bangle.prependListener&&Bangle.removeListener('swipe', catchSwipe); // Remove swipe lister if it was added with `Bangle.prependListener()` (fw2v19 and up).
         g.clearRect(Bangle.appRect);
       }
     });
     // Listen for swipe right to finish
-    if (Bangle.prependListener) {
-      Bangle.prependListener('swipe', onSwipe);
-    } 
-    else {
-      Bangle.on('swipe', onSwipe);
-    }
+    //if (Bangle.prependListener) {
+    //  Bangle.prependListener('swipe', onSwipe);
+    //} 
+    //else {
+    //  Bangle.on('swipe', onSwipe);
+    //}
     g.clearRect(Bangle.appRect);
     drawUI();
     let catchSwipe = ()=>{E.stopEventPropagation&&E.stopEventPropagation();};
