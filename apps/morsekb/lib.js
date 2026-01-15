@@ -108,6 +108,7 @@ exports.input = function(options) {
   }
 
   function cleanup() {
+    Bangle.removeListener("swipe", onSwipe);
     Bangle.setUI();
     g.clearRect(Bangle.appRect);
   }
@@ -151,41 +152,25 @@ exports.input = function(options) {
     resolver = resolve;
 
     Bangle.setUI({
-      mode:"custom", 
-      
-      drag:(e)=>{
-      if (e.dx > 40) {        // DONE
-        commitCharacter();
-        cleanup();
-        resolver(outputText);
-      } else if (e.dx < -40) { // CANCEL
-        cleanup();
-        resolver(undefined);
-      }
-      if (e.dy > 40) {
-        openSpecialMenu();
-      }
-    },
-    
-    touch:(_, xy)=>{
-      let x = xy.x, y = xy.y;
-      for (let k in buttons) {
-        let b = buttons[k];
-        if (x>=b.x && x<=b.x+b.w && y>=b.y && y<=b.y+b.h) {
-          if (k==="dot") addSignal(".");
-          else if (k==="dash") addSignal("-");
-          else if (k==="ret") pausePressed();
-          else if (k==="del") deletePressed();
-          return;
+      touch:(_, xy)=>{
+        let x = xy.x, y = xy.y;
+        for (let k in buttons) {
+          let b = buttons[k];
+          if (x>=b.x && x<=b.x+b.w && y>=b.y && y<=b.y+b.h) {
+            if (k==="dot") addSignal(".");
+            else if (k==="dash") addSignal("-");
+            else if (k==="ret") pausePressed();
+            else if (k==="del") deletePressed();
+            return;
+          }
         }
+      },
+      back : () => {
+        cleanup();
+        resolver(undefined); // cancel
       }
-    },
-
-
-    back : () => {
-      cleanup();
-      resolver(undefined); // cancel
-    }});
+    });
+    Bangle.on("swipe", onSwipe);
     g.clearRect(Bangle.appRect);
     drawUI();
     //let catchSwipe = ()=>{E.stopEventPropagation&&E.stopEventPropagation();};
