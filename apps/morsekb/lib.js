@@ -154,15 +154,15 @@ exports.input = function(options) {
       mode:"custom", 
       
       drag:(e)=>{
-      if (e.dx > 1) {        // DONE
+      if (e.dx > 40) {        // DONE
         commitCharacter();
         cleanup();
         resolver(outputText);
-      } else if (e.dx < -1) { // CANCEL
+      } else if (e.dx < -40) { // CANCEL
         cleanup();
         resolver(undefined);
       }
-      if (e.dy > 1) {
+      if (e.dy > 40) {
         openSpecialMenu();
       }
     },
