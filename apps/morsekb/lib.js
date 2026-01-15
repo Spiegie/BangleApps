@@ -153,16 +153,16 @@ exports.input = function(options) {
     Bangle.setUI({
       mode:"custom", 
       
-      drag:(lr, ud)=>{
-      if (lr === 1) {        // DONE
+      drag:(e)=>{
+      if (e.dx > 1) {        // DONE
         commitCharacter();
         cleanup();
         resolver(outputText);
-      } else if (lr === -1) { // CANCEL
+      } else if (e.dx < -1) { // CANCEL
         cleanup();
         resolver(undefined);
       }
-      if (ud === 1) {
+      if (e.dy > 1) {
         openSpecialMenu();
       }
     },
