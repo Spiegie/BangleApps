@@ -53,11 +53,14 @@ function bangleDownload() {
   }).then(content => {
     Progress.hide({ sticky: true });
     showToast('Backup complete!', 'success');
+    const dateStr = (new Date()).toISOString().substr(0,10);
+    const filename = `Bangle.js Backup ${dateStr}.zip`;
     if (typeof Android !== "undefined" && typeof Android.saveFile === 'function') {
       // Recent Gadgetbridge version that provides the saveFile interface
-      Android.saveFile("Banglejs backup.zip", "application/zip", btoa(content));
+      Android.saveFile(filename, "application/zip", btoa(content));
     } else {
-      Espruino.Core.Utils.fileSaveDialog(content, "Banglejs backup.zip");
+      // saves date as Bangle.js Backup 2022-03-22
+      Espruino.Core.Utils.fileSaveDialog(content, filename);
     }
   }).catch(err => {
     Progress.hide({ sticky: true });
@@ -110,7 +113,6 @@ function bangleUpload() {
         Progress.hide({sticky:true});
         Progress.show({title:`Restoring...`, sticky:true});
         return Comms.showMessage(`Restoring...`); })
-      .then(() => Comms.write("\x10"+Comms.getProgressCmd()+"\n"))
       .then(() => Comms.uploadCommandList(cmds, 0, cmds.length))
       .then(() => getInstalledApps(true))
       .then(() => Comms.showMessage(Const.MESSAGE_RELOAD))
